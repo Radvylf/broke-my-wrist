@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>IBMyW tools: Texture extractor</title>
+        
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+        
+        <style>
+            canvas {
+                display: block;
+                
+                image-rendering: pixelated;
+            }
+        </style>
+    </head>
+    <body>
+        <input type="file" id="input" accept="image/*"/>
+        
+        <canvas id="full"></canvas>
+        
+        <h2>Mode:</h2>
+        
+        <div>
+            <div>
+                <input type="radio" name="mode" id="mode_face" checked/>
+                <label for="mode_face">Face</label>
+            </div>
+            <div>
+                <input type="radio" name="mode" id="mode_y_bords"/>
+                <label for="mode_y_bords">Y-bords</label>
+            </div>
+            <div>
+                <input type="radio" name="mode" id="mode_dbl_y_bord"/>
+                <label for="mode_dbl_y_bord">Double Y-bord</label>
+            </div>
+            <div>
+                <input type="radio" name="mode" id="mode_xy_bord"/>
+                <label for="mode_xy_bord">XY-bord</label>
+            </div>
+            <div>
+                <input type="radio" name="mode" id="mode_yx_bord"/>
+                <label for="mode_yx_bord">YX-bord</label>
+            </div>
+        </div>
+        
+        <textarea id="output" readonly></textarea>
+        
+        <script>
+            (() => {
+                const mode_objs = {
+                    mode_face: [
+                        [[0, 0], [1, 0], [2, 1], [3, 1], [4, 2], [5, 2], [0, 1], [1, 1], [2, 2], [3, 2], [0, 2], [1, 2], [2, 3], [3, 3], [0, 3], [1, 3], [0, 4], [1, 4]],
+                        [[4, 0], [5, 0], [4, 1], [5, 1], [2, 1], [3, 1], [4, 2], [5, 2], [2, 2], [3, 2], [4, 3], [5, 3], [0, 2], [1, 2], [2, 3], [3, 3], [4, 4], [5, 4]]
+                    ],
+                    mode_y_bords: [
+                        [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6]],
+                        [[0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [0, 5], [0, 6]]
+                    ],
+                    mode_dbl_y_bord: [[[0, 0], [1, 0], [0, 1], [1, 1], [0, 2], [1, 2], [0, 3], [1, 3], [0, 4], [1, 4], [0, 5], [1, 5], [0, 6], [1, 6]]],
+                    mode_xy_bord: [[[0, 2], [1, 2], [2, 1], [3, 1], [4, 0], [5, 0]]],
+                    mode_yx_bord: [[[0, 0], [1, 0], [2, 1], [3, 1], [4, 2], [5, 2]]]
+                };
+                
+                const face_map = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1];
+                
+                var step = 0;
+                
+                var input = document.getElementById("input");
+                
+                var full = document.getElementById("full");
+                var ctx = full.getContext("2d");
+                
+                var mode = "mode_face";
+                
+                var output = document.getElementById("output");
+                
+                input.oninput = async () => {
+                    var objs = [];
+                    
+                    if (!input.files[0]) return;
+                    
+                    var img = new Image();
+                    
+                    await new Promise((r) => {
+                        var file_r = new FileReader();
+                        
+                        file_r.onload = () => {
+                            img.src = file_r.result;
+                            img.onload = r;
+                        };
+                        file_r.readAsDataURL(input.files[0]);
+                    });
+                    
+                    full.width = img.width;
+                    full.height = img.height;
+
+                    ctx.drawImage(img, 0, 0);
+                    
+                    full.style.width = img.width * 8 + "px";
+                    full.style.height = img.height * 8 + "px";
+                    
+                    var id = ctx.getImageData(0, 0, img.width, img.height);
+                    
+                        ctx.fillStyle = "rgba(127.5, 127.5, 127.5, 0.5)";
+                    ctx.fillRect(0, 0, img.width, img.height);
+                    
+                    var rp = (x, y) => {
+                        if (x < 0 || y < 0 || x >= img.width || y >= img.height)
+                            return [0, 0, 0, 0];
+
+                        return id.data.slice((x + y * img.width) * 4, (x + y * img.width) * 4 + 4);
+                    };
+
+                    var wp = (x, y, d) => {
+                        if (x < 0 || y < 0 || x >= img.width || y >= img.height)
+                            return;
+
+                        ctx.fillStyle = "rgba(" + d.slice(0, 3).join(", ") + ", " + d[3] / 255 + ")";
+                        ctx.fillRect(x, y, 1, 1);
+                    };
+                    
+                    var draw_obj = (obj) => {
+                        var p;
+                        
+                        for (var [x, y] of obj.obj) {
+                            p = rp(obj.pos[0] + x, obj.pos[1] + y);
+                            
+                            p[0] = p[0] * p[3] / 255 + (255 - p[3]);
+                            p[1] = p[1] * p[3] / 255 + (255 - p[3]);
+                            p[2] = p[2] * p[3] / 255 + (255 - p[3]);
+                            
+                            wp(obj.pos[0] + x, obj.pos[1] + y, [
+                                [p[0], p[1], p[2], 255],
+                                [p[0] / 2, p[1] / 2, (p[2] + 255) / 2, 255],
+                                [p[0] / 2, (p[1] + 255) / 2, p[2] / 2, 255]
+                            ][obj.color]);
+                        }
+                    };
+                    
+                    var render = () => {
+                        ctx.clearRect(0, 0, img.width, img.height);
+                        ctx.drawImage(img, 0, 0);
+                        ctx.fillStyle = "rgba(127.5, 127.5, 127.5, 0.5)";
+                        ctx.fillRect(0, 0, img.width, img.height);
+                        
+                        for (var obj of objs) draw_obj(obj);
+                    };
+                    
+                    full.addEventListener("mousemove", (event) => {
+                        if (step >= mode_objs[mode].length) return;
+                        
+                        render();
+                        
+                        draw_obj({
+                            pos: [event.offsetX / 8 | 0, event.offsetY / 8 | 0],
+                            obj: mode_objs[mode][step],
+                            color: 0
+                        });
+                    }, false);
+                    
+                    full.addEventListener("mouseleave", render, false);
+                    window.addEventListener("blur", render, false);
+                    
+                    function finish_struct(objs) {
+                        if (mode == "mode_y_bords") return objs;
+                        if (mode != "mode_face") return objs[0];
+                        
+                        var obj = [];
+                        
+                        for (var i of face_map) obj.push(objs[i].shift());
+                        
+                        return obj;
+                    }
+                    
+                    full.addEventListener("click", (event) => {
+                        if (step >= mode_objs[mode].length) return;
+                        
+                        objs.push({
+                            pos: [event.offsetX / 8 | 0, event.offsetY / 8 | 0],
+                            obj: mode_objs[mode][step],
+                            color: step + 1
+                        });
+                        
+                        step++;
+                        
+                        if (step >= mode_objs[mode].length) {
+                            output.value = JSON.stringify(finish_struct(objs.map(o => o.obj.map(p => "#" + [...rp(o.pos[0] + p[0], o.pos[1] + p[1])].slice(0, 3).map(x => x.toString(16).padStart(2, "0")).join(""))))).replace(/,/g, ", ");
+                        }
+                        
+                        render();
+                    }, false);
+                    
+                    for (var option of document.querySelectorAll("input[name=\"mode\"]")) option.addEventListener("change", () => {
+                        objs = [];
+                        step = 0;
+                        
+                        render();
+                        
+                        output.value = "";
+                        
+                        mode = document.querySelector("input[name=\"mode\"]:checked").id;
+                    });
+                };
+            })();
+        </script>
+    </body>
+</html>
