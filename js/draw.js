@@ -7,14 +7,7 @@ const MISSING_COLOR = "#000000";
 var disp_size, pix_size;
 
 var tiles = new Map();
-var tris = new Map([
-    ["0,0,0", [1]],
-    ["0,0,1", [1]],
-    ["0,-1,1", [0]],
-    ["1,-1,0", [0]],
-    ["1,-1,1", [2]],
-    ["1,0,0", [2]]
-]);
+var tris = new Map();
 
 var cam = [0, 0];
 var targ_cam = [0, 0];
@@ -22,7 +15,10 @@ var targ_cam = [0, 0];
 const textures = {
     "0": ["#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373"], // ["#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373"],
     "1": ["#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373"], // ["#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373"]
-    "2": ["#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#737373"]
+    "2": ["#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#737373", "#acacac", "#acacac", "#737373", "#737373", "#acacac", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#737373", "#737373", "#737373", "#acacac", "#acacac", "#acacac", "#737373"],
+    "4": ["#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17"],
+    "5": ["#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d"],
+    "6": ["#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29"]
 };
 const y_bord_textures = {
     "0": [["#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#acacac", "#737373"], ["#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#acacac", "#737373"]],
@@ -30,10 +26,54 @@ const y_bord_textures = {
     "2": [["#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"], ["#000000", "#000000", "#000000", "#000000", "#000000", "#000000", "#000000"]]
 };
 const y_bord_dbl_textures = {
-    "1,2": ["#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373"]
+    "1,2": ["#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373", "#737373"],
+    "4,4": ["#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17"],
+    "5,5": ["#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d"],
+    "6,6": ["#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29"],
+    "5,6": ["#71503d", "#563a29", "#71503d", "#563a29", "#71503d", "#563a29", "#71503d", "#563a29", "#71503d", "#563a29", "#71503d", "#563a29", "#71503d", "#563a29"]
 };
-const xy_bord_textures = {};
-const yx_bord_textures = {};
+const xy_bord_textures = {
+    "2,2": ["#acacac", "#acacac", "#acacac", "#acacac", "#acacac", "#737373"],
+    "4,4": ["#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17"],
+    "5,5": ["#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d"],
+    "6,6": ["#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29"],
+    "5,4": ["#469b10", "#469b10", "#469b10", "#469b10", "#469b10", "#469b10"]
+};
+const yx_bord_textures = {
+    "1,1": ["#737373", "#acacac", "#acacac", "#acacac", "#acacac", "#acacac"],
+    "4,4": ["#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17", "#64dd17"],
+    "5,5": ["#71503d", "#71503d", "#71503d", "#71503d", "#71503d", "#71503d"],
+    "6,6": ["#563a29", "#563a29", "#563a29", "#563a29", "#563a29", "#563a29"],
+    "4,6": ["#469b10", "#469b10", "#469b10", "#469b10", "#469b10", "#469b10"]
+};
+
+const blocks = {
+    "0": {},
+    "1": {
+        tris: {
+            top: [4, 4],
+            left: [5, 5],
+            right: [6, 6]
+        },
+        is_opaque: true
+    },
+    "2": {
+        tris: {
+            top: [5, 5],
+            left: [5, 5],
+            right: [6, 6]
+        },
+        is_opaque: true
+    },
+    "3": {
+        tris: {
+            top: [0, 0],
+            left: [1, 1],
+            right: [2, 2]
+        },
+        is_opaque: true
+    }
+};
 
 function hsl_to_rgb(h, s, l) {
     h = (h % 360 + 360) % 360;
@@ -82,6 +122,44 @@ function hsl_to_rgb(h, s, l) {
     return "#" + xx(r * 255) + xx(g * 255) + xx(b * 255);
 }
 
+function load_tri(x, xy, r) {
+    if (tris.has(x + "," + xy + "," + r)) return tris.get(x + "," + xy + "," + r);
+    
+    var tri = [];
+    
+    var y = MAX_TERRAIN_Y;
+    
+    for (var b, y = MAX_TERRAIN_Y; y >= MIN_TERRAIN_Y; y--) {
+        b = load_block(-(x + xy + r + y), y, -(xy + y));
+        
+        if (b != 0) {
+            tri.push([blocks[b].tris.top[r], y * 3]);
+            
+            if (blocks[b].is_opaque) break;
+        }
+        
+        b = load_block(-(x + xy + y), y, -(xy + y) + (1 - r));
+        
+        if (b != 0) {
+            tri.push([blocks[b].tris[["left", "right"][r]][r], y * 3 + 1]);
+            
+            if (blocks[b].is_opaque) break;
+        }
+        
+        b = load_block(-(x + xy + y) + (1 - r), y, -(xy + y) + 1);
+        
+        if (b != 0) {
+            tri.push([blocks[b].tris[["right", "left"][r]][r], y * 3 + 2]);
+            
+            if (blocks[b].is_opaque) break;
+        }
+    }
+    
+    tris.set(x + "," + xy + "," + r, tri);
+    
+    return tri;
+}
+
 function load_pix_color(x, y) {
     function mod_8(n) {
         return (n % 8 + 8) % 8;
@@ -98,20 +176,24 @@ function load_pix_color(x, y) {
     // return is_corner ? "#000000" : is_pq_bord ? "#008800" : is_qp_bord ? "#880000" : is_p_bord_0 ? "#008888" : is_p_bord_1 ? "#000088" : "#dddddd";
     
     var tri_x = Math.floor(x / 8);
-    var tri_yx = Math.floor((y - Math.floor(x / 2)) / 8);
-    var tri_r = y - tri_yx * 8 - tri_x * 4 - (tri_x % 2 + 2) % 2 * 4 > 8 - mod_8(x / 2) ? 1 : 0; // todo: could prolly simplify
-    var tri = [tri_x, tri_yx, tri_r];
+    var tri_xy = Math.floor((y - Math.floor(x / 2)) / 8);
+    var tri_r = y - tri_xy * 8 - tri_x * 4 - (tri_x % 2 + 2) % 2 * 4 > 8 - mod_8(x / 2) ? 1 : 0; // todo: could prolly simplify
+    var tri = [tri_x, tri_xy, tri_r];
     
     var subtri_x = mod_8(x) - 2;
-    var subtri_y = y - tri_yx * 8 - tri_x * 4 - 2;
+    var subtri_y = y - tri_xy * 8 - tri_x * 4 - 2;
     var subtri_norm_y = subtri_y - Math.floor(subtri_x / 2) - (subtri_y > 4 - Math.floor(subtri_x / 2) ? 1 : 0);
     var subtri = subtri_x + subtri_norm_y * 6;
     
-    // return x == 0 && y == 0 ? "#ffffff" : is_face ? /*hsl_to_rgb(180, (tri_x * 10 % 100 + 100) % 100, ((tri_yx * 2 + tri_r) * 10 % 100 + 100) % 100)*/ hsl_to_rgb(subtri * 10, 80, 70) : "#000000";
-    // return hsl_to_rgb(180, (tri_x * 10 % 100 + 100) % 100, ((tri_yx * 2 + tri_r + is_face) * 10 % 100 + 100) % 100);
+    // return x == 0 && y == 0 ? "#ffffff" : is_face ? /*hsl_to_rgb(180, (tri_x * 10 % 100 + 100) % 100, ((tri_xy * 2 + tri_r) * 10 % 100 + 100) % 100)*/ hsl_to_rgb(subtri * 10, 80, 70) : "#000000";
+    // return hsl_to_rgb(is_face ? 190 : 190, (tri_x * 10 % 100 + 100) % 100, ((tri_xy * 2 + tri_r) * 10 % 100 + 100) % 100);
     
     if (is_face) {
-        return tris.has(tri_x + "," + tri_yx + "," + tri_r) ? textures[tris.get(tri_x + "," + tri_yx + "," + tri_r)[0]][subtri] : MISSING_COLOR;
+        var tri = load_tri(tri_x, tri_xy, tri_r);
+        
+        if (!tri.length) return MISSING_COLOR;
+        
+        return textures[tri[0][0]][subtri];
     }
     
     if (is_corner) {
@@ -121,79 +203,77 @@ function load_pix_color(x, y) {
     // todo: base borders off of blocks rather than tris
     
     if (is_y_bord_0) {
-        var f_0 = tris.has((tri_x - 1) + "," + tri_yx + ",1") ? tris.get((tri_x - 1) + "," + tri_yx + ",1")[0] : null;
-        var f_1 = tris.has(tri_x + "," + tri_yx + ",0") ? tris.get(tri_x + "," + tri_yx + ",0")[0] : null;
+        var f_0 = load_tri(tri_x - 1, tri_xy, 1);
+        var f_1 = load_tri(tri_x, tri_xy, 0);
         
-        if (f_0 == null) {
+        if (f_0.length == 0) {
             return MISSING_COLOR;
         }
         
-        if (f_0 == null || f_1 == null || !((f_0 + "," + f_1) in y_bord_dbl_textures)) {
-            return f_0 in y_bord_textures ? y_bord_textures[f_0][0][y - tri_yx * 8 - tri_x * 4 - 1] : MISSING_COLOR;
+        if (f_1.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in y_bord_dbl_textures)) {
+            return f_0[0][0] in y_bord_textures ? y_bord_textures[f_0[0][0]][0][y - tri_xy * 8 - tri_x * 4 - 1] : MISSING_COLOR;
         }
         
-        return y_bord_dbl_textures[f_0 + "," + f_1][(y - tri_yx * 8 - tri_x * 4 - 1) * 2];
+        return y_bord_dbl_textures[f_0[0][0] + "," + f_1[0][0]][(y - tri_xy * 8 - tri_x * 4 - 1) * 2];
     }
     
     if (is_y_bord_1) {
-        var f_0 = tris.has((tri_x - 1) + "," + tri_yx + ",1") ? tris.get((tri_x - 1) + "," + tri_yx + ",1")[0] : null;
-        var f_1 = tris.has(tri_x + "," + tri_yx + ",0") ? tris.get(tri_x + "," + tri_yx + ",0")[0] : null;
+        var f_0 = load_tri(tri_x - 1, tri_xy, 1);
+        var f_1 = load_tri(tri_x, tri_xy, 0);
         
-        if (f_1 == null) {
+        if (f_1.length == 0) {
             return MISSING_COLOR;
         }
         
-        if (f_0 == null || !((f_0 + "," + f_1) in y_bord_dbl_textures)) {
-            return f_1 in y_bord_textures ? y_bord_textures[f_1][1][y - tri_yx * 8 - tri_x * 4 - 1] : MISSING_COLOR;
+        if (f_0.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in y_bord_dbl_textures)) {
+            return f_1[0][0] in y_bord_textures ? y_bord_textures[f_1[0][0]][1][y - tri_xy * 8 - tri_x * 4 - 1] : MISSING_COLOR;
         }
         
-        return y_bord_dbl_textures[f_0 + "," + f_1][(y - tri_yx * 8 - tri_x * 4 - 1) * 2 + 1];
-    }
-    
-    if (is_xy_bord) {
-        var f_0 = tris.has(tri_x + "," + tri_yx + ",0") ? tris.get(tri_x + "," + tri_yx + ",0")[0] : null;
-        var f_1 = tris.has(tri_x + "," + tri_yx + ",1") ? tris.get(tri_x + "," + tri_yx + ",1")[0] : null;
-        
-        if (f_0 == null || f_1 == null || !((f_0 + "," + f_1) in xy_bord_textures)) {
-            return MISSING_COLOR;
-        }
-        
-        return xy_bord_textures[f_0 + "," + f_1][mod_8(x) - 2];
+        return y_bord_dbl_textures[f_0[0][0] + "," + f_1[0][0]][(y - tri_xy * 8 - tri_x * 4 - 1) * 2 + 1];
     }
     
     if (is_yx_bord) {
-        var f_0 = tris.has(tri_x + "," + (tri_yx - 1) + ",0") ? tris.get(tri_x + "," + (tri_yx - 1) + ",0")[0] : null;
-        var f_1 = tris.has(tri_x + "," + tri_yx + ",1") ? tris.get(tri_x + "," + tri_yx + ",1")[0] : null;
+        var f_0 = load_tri(tri_x, tri_xy, 0);
+        var f_1 = load_tri(tri_x, tri_xy, 1);
         
-        if (f_0 == null || f_1 == null || !((f_0 + "," + f_1) in yx_bord_textures)) {
+        if (f_0.length == 0 || f_1.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in yx_bord_textures)) {
             return MISSING_COLOR;
         }
         
-        return yx_bord_textures[f_0 + "," + f_1][mod_8(x) - 2];
+        return yx_bord_textures[f_0[0][0] + "," + f_1[0][0]][mod_8(x) - 2];
+    }
+    
+    if (is_xy_bord) {
+        var f_0 = load_tri(tri_x, tri_xy, 0);
+        var f_1 = load_tri(tri_x, (tri_xy - 1), 1);
+        
+        if (f_0.length == 0 || f_1.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in xy_bord_textures)) {
+            return MISSING_COLOR;
+        }
+        
+        return xy_bord_textures[f_0[0][0] + "," + f_1[0][0]][mod_8(x) - 2];
     }
 }
 
 function load_tile(tx, ty) {
-    if (tiles.has(tx + "," + ty)) {
-        return tiles.get(tx + "," + ty);
-    } else {
-        var tile = document.createElement("canvas");
-        var t_2d = tile.getContext("2d");
+    if (tiles.has(tx + "," + ty)) return tiles.get(tx + "," + ty);
 
-        tile.width = TILE_SIZE;
-        tile.height = TILE_SIZE;
+    var tile = document.createElement("canvas");
+    var t_2d = tile.getContext("2d");
 
-        var x, y;
+    tile.width = TILE_SIZE;
+    tile.height = TILE_SIZE;
 
-        for (x = 0; x < TILE_SIZE; x++) for (y = 0; y < TILE_SIZE; y++) {
-            t_2d.fillStyle = load_pix_color(tx * TILE_SIZE + x, ty * TILE_SIZE + y);
-            t_2d.fillRect(x, y, 1, 1);
-        }
+    var x, y;
 
-        tiles.set(tx + "," + ty, tile);
-
-        return tile;
+    for (x = 0; x < TILE_SIZE; x++) for (y = 0; y < TILE_SIZE; y++) {
+        t_2d.fillStyle = load_pix_color(tx * TILE_SIZE + x, ty * TILE_SIZE + y);
+        t_2d.fillRect(x, y, 1, 1);
     }
+
+    tiles.set(tx + "," + ty, tile);
+
+    return tile;
 }
 
 function draw(tick_time_ms) {
@@ -219,6 +299,13 @@ function draw(tick_time_ms) {
     var x, y;
     
     for (x = min_tile_x; x <= incl_tile_x; x++) for (y = min_tile_y; y <= incl_tile_y; y++) c_2d.drawImage(load_tile(x, y), ...pix_to_pxs(x * TILE_SIZE, y * TILE_SIZE), pix_size * TILE_SIZE, pix_size * TILE_SIZE);
+    
+    if (mouse_offset) {
+        c_2d.textAlign = "left";
+        c_2d.textBaseline = "bottom";
+        
+        c_2d.fillText(mouse_offset[0] + ", " + mouse_offset[1], mouse_offset - 2, mouse_offset + 2);
+    }
 }
 
 function resize() {
@@ -233,8 +320,6 @@ function resize() {
 }
 
 window.addEventListener("resize", resize, false);
-
-resize();
 
 function render_chunk_terrain(chx, chy) {
     var terrain_height_map = [...Array(CHUNK_SIZE)].map((_, x) => [...Array(CHUNK_SIZE)].map((_, y) => terrain_height(x, y)));

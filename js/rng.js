@@ -1,3 +1,12 @@
+var world_seed = [
+    Math.random() * (2 ** 32) | 0,
+    Math.random() * (2 ** 32) | 0,
+    Math.random() * (2 ** 32) | 0,
+    Math.random() * (2 ** 32) | 0
+];
+var chunk_16_grid_seed = fnv_hash([0x00, ...i32s_to_bytes(world_seed)]);
+var chunk_4_grid_seed = fnv_hash([0x01, ...i32s_to_bytes(world_seed)]);
+
 const PRNG_mode = {
     I32_PAIR: 0,
     LOSSY: 1,
