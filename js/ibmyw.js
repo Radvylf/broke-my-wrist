@@ -2,8 +2,8 @@ var mouse_client = null;
 var mouse_offset = null;
 
 window.addEventListener("click", (event) => {
-    targ_cam[0] = cam[0] + (event.clientX - Math.floor(disp_size[0] / 2)) / pix_size;
-    targ_cam[1] = cam[1] + (event.clientY - Math.floor(disp_size[1] / 2)) / pix_size;
+    targ_cam[0] = cam[0] + (event.offsetX - Math.floor(disp_size[0] / 2)) / pix_size;
+    targ_cam[1] = cam[1] + (event.offsetY - Math.floor(disp_size[1] / 2)) / pix_size;
 }, false);
 
 window.addEventListener("mousemove", (event) => {
@@ -21,4 +21,8 @@ window.addEventListener("blur", (event) => {
     mouse_offset = null;
 }, false);
 
-resize();
+Promise.all(img_promises).then(_ => {
+    resize();
+    
+    window.requestAnimationFrame(frame);
+});

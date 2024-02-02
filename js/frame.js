@@ -10,5 +10,3 @@ function frame(time) {
 
     window.requestAnimationFrame(frame);
 }
-
-window.requestAnimationFrame(frame);
