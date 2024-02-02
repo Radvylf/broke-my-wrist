@@ -245,98 +245,6 @@ function iso_to_face_pix(ix, ixy, ir) {
     ];
 }
 
-function load_pix_color(x, y) {
-    var is_xy_bord = mod_8(Math.floor(x / 2) - y) == 7;
-    var is_yx_bord = mod_8(Math.floor(x / 2) + y) == 7;
-    var is_y_bord_0 = mod_8(x) == 7;
-    var is_y_bord_1 = mod_8(x) == 0;
-    var is_y_bord = is_y_bord_0 || is_y_bord_1;
-    var is_corner = is_xy_bord && is_yx_bord;
-    var is_face = !(is_xy_bord || is_yx_bord || is_y_bord);
-    
-    // return is_corner ? "#000000" : is_pq_bord ? "#008800" : is_qp_bord ? "#880000" : is_p_bord_0 ? "#008888" : is_p_bord_1 ? "#000088" : "#dddddd";
-    
-    var tri_x = Math.floor(x / 8);
-    var tri_xy = Math.floor((y - Math.floor((x + 1) / 2)) / 8);
-    // var tri_r = y - tri_xy * 8 - tri_x * 4 - (tri_x % 2 + 2) % 2 * 4 > 8 - mod_8(x / 2) ? 1 : 0; // todo: could prolly simplify
-    var tri_r = mod_8(y - Math.floor((x + 1) / 2)) < 8 - Math.floor((mod_8(x) + 1) / 2) * 2 ? 0 : 1;
-    var tri = [tri_x, tri_xy, tri_r];
-    
-    var subtri_x = mod_8(x) - 2;
-    var subtri_y = y - tri_xy * 8 - tri_x * 4 - 2;
-    var subtri_norm_y = subtri_y - Math.floor(subtri_x / 2) - (subtri_y > 4 - Math.floor(subtri_x / 2) ? 1 : 0);
-    var subtri = subtri_x + subtri_norm_y * 6;
-    
-    // return x == 0 && y == 0 ? "#ffffff" : is_face ? /*hsl_to_rgb(180, (tri_x * 10 % 100 + 100) % 100, ((tri_xy * 2 + tri_r) * 10 % 100 + 100) % 100)*/ hsl_to_rgb(subtri * 10, 80, 70) : "#000000";
-    return x == 0 && y == 0 ? "#ff0000" : hsl_to_rgb(is_face ? 190 : 190, (tri_x * 10 % 100 + 100) % 100, ((tri_xy * 2 + tri_r) * 10 % 100 + 100) % 100);
-    
-    if (is_face) {
-        var tri = load_tri(tri_x, tri_xy, tri_r);
-        
-        if (!tri.length) return MISSING_COLOR;
-        
-        return textures[tri[0][0]][subtri];
-    }
-    
-    if (is_corner) {
-        return MISSING_COLOR;
-    }
-    
-    // todo: base borders off of blocks rather than tris
-    
-    if (is_y_bord_0) {
-        var f_0 = load_tri(tri_x - 1, tri_xy, 1);
-        var f_1 = load_tri(tri_x, tri_xy, 0);
-        
-        if (f_0.length == 0) {
-            return MISSING_COLOR;
-        }
-        
-        if (f_1.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in y_bord_dbl_textures)) {
-            return f_0[0][0] in y_bord_textures ? y_bord_textures[f_0[0][0]][0][y - tri_xy * 8 - tri_x * 4 - 1] : MISSING_COLOR;
-        }
-        
-        return y_bord_dbl_textures[f_0[0][0] + "," + f_1[0][0]][(y - tri_xy * 8 - tri_x * 4 - 1) * 2];
-    }
-    
-    if (is_y_bord_1) {
-        var f_0 = load_tri(tri_x - 1, tri_xy, 1);
-        var f_1 = load_tri(tri_x, tri_xy, 0);
-        
-        if (f_1.length == 0) {
-            return MISSING_COLOR;
-        }
-        
-        if (f_0.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in y_bord_dbl_textures)) {
-            return f_1[0][0] in y_bord_textures ? y_bord_textures[f_1[0][0]][1][y - tri_xy * 8 - tri_x * 4 - 1] : MISSING_COLOR;
-        }
-        
-        return y_bord_dbl_textures[f_0[0][0] + "," + f_1[0][0]][(y - tri_xy * 8 - tri_x * 4 - 1) * 2 + 1];
-    }
-    
-    if (is_yx_bord) {
-        var f_0 = load_tri(tri_x, tri_xy, 0);
-        var f_1 = load_tri(tri_x, tri_xy, 1);
-        
-        if (f_0.length == 0 || f_1.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in yx_bord_textures)) {
-            return MISSING_COLOR;
-        }
-        
-        return yx_bord_textures[f_0[0][0] + "," + f_1[0][0]][mod_8(x) - 2];
-    }
-    
-    if (is_xy_bord) {
-        var f_0 = load_tri(tri_x, tri_xy, 0);
-        var f_1 = load_tri(tri_x, (tri_xy - 1), 1);
-        
-        if (f_0.length == 0 || f_1.length == 0 || !((f_0[0][0] + "," + f_1[0][0]) in xy_bord_textures)) {
-            return MISSING_COLOR;
-        }
-        
-        return xy_bord_textures[f_0[0][0] + "," + f_1[0][0]][mod_8(x) - 2];
-    }
-}
-
 function pix_is(p_0, p_1) {
     return p_0[0] == p_1[0] && p_0[1] == p_1[1] && p_0[2] == p_1[2];
 }
@@ -353,13 +261,6 @@ function load_tile(tx, ty) {
 
     tile.width = TILE_SIZE;
     tile.height = TILE_SIZE;
-
-    var x, y;
-
-    for (x = 0; x < TILE_SIZE; x++) for (y = 0; y < TILE_SIZE; y++) {
-        // t_2d.fillStyle = load_pix_color(tx * TILE_SIZE + x, ty * TILE_SIZE + y);
-        // t_2d.fillRect(x, y, 1, 1);
-    }
     
     var min_x = tx * TILE_SIZE;
     var min_y = ty * TILE_SIZE;
