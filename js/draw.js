@@ -1,7 +1,7 @@
 var canvas = document.getElementById("display");
 var c_2d = canvas.getContext("2d");
 
-const TILE_SIZE = 16;
+const TILE_SIZE = 64;
 const MISSING_COLOR = "#000000";
 
 var disp_size, pix_size;
@@ -27,10 +27,14 @@ function load_imgs(data) {
     return data.map(load_img);
 }
 
-function load_colors(data) {
-    var d = data.split(" ").map(b => window.atob(b).split("").map(x => x.charCodeAt(0)));
+function load_color(b64) {
+    var d = window.atob(b64).split("").map(x => x.charCodeAt(0));
     
     return "rgba(" + d.slice(0, 3).join(", ") + ", " + d[3] / 255 + ")";
+}
+
+function load_colors(data) {
+    return data.split(" ").map(load_color);
 }
 
 const overrides = {
@@ -41,7 +45,11 @@ const overrides = {
     yx_top_bords: {
         "1,1": load_img("iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACBJREFUGFdjZEADyYeV/oOEGGHiMIG5tvfAYozoAjCFAF1yCkvImOcFAAAAAElFTkSuQmCC")
     },
-    yx_side_bords: {}
+    yx_side_bords: {},
+    top_corners: {
+        "1,1,1": load_colors("Y8Mi/w Y8Mi/w")
+    },
+    // other types of corners
 };
 
 const blocks = {
@@ -118,6 +126,30 @@ const blocks = {
             "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAAA9JREFUGFdjZMABGEmWAAAA4QAEI1qlswAAAABJRU5ErkJggg=="
         ]),
         corners: load_colors("RpsQ/w RpsQ/w RpsQ/w RpsQ/w RpsQ/w RpsQ/w cVA9/w Vjop/w cVA9/w Vjop/w"),
+        is_opaque: true
+    },
+    4: { // dbg color coded
+        faces: load_imgs([
+            "iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IArs4c6QAAACpJREFUGFdjTD6s9H+u7T1GBiyAESQJE0dXhCKJrgirJEwR8Tqx2onLtQAudRpPmWngYwAAAABJRU5ErkJggg==",
+            "iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IArs4c6QAAACVJREFUGFdjZMABkg8r/WdElwMJwsTgksiCcElsgsTpJMpObIoANtgP+UvDHhsAAAAASUVORK5CYII=",
+            "iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IArs4c6QAAACpJREFUGFdjLAyw/d+/4TAjAxbACJKEiaMrQpFEV4RVEqaIeJ1Y7cTlWgD4lRoFbIuvpQAAAABJRU5ErkJggg==",
+            "iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IArs4c6QAAACVJREFUGFdjZMABCgNs/zOiy4EEYWJwSWRBuCQ2QeJ0EmUnNkUAa4IN82JsOVMAAAAASUVORK5CYII=",
+            "iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IArs4c6QAAACpJREFUGFdjDLPS/L/q2HVGBiyAESQJE0dXhCKJrgirJEwR8Tqx2onLtQDGbBnAGFGi6QAAAABJRU5ErkJggg==",
+            "iVBORw0KGgoAAAANSUhEUgAAAAcAAAAHCAYAAADEUlfTAAAAAXNSR0IArs4c6QAAACVJREFUGFdjZMABwqw0/zOiy4EEYWJwSWRBuCQ2QeJ0EmUnNkUArgwMEI3xyX8AAAAASUVORK5CYII="
+        ]),
+        xy_bords: load_imgs([
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACJJREFUGFdjVJz2+T8DAwPD/SxeRhANA3AOugIUVSDVMAUAu08KrSteRpEAAAAASUVORK5CYII=",
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACJJREFUGFdjTLfa/p+BgYFh5jFPRhANA3AOugIUVSDVMAUAtHMKW0KmVhoAAAAASUVORK5CYII=",
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACJJREFUGFdjfCmX/J+BgYFB/NFcRhANA3AOugIUVSDVMAUAtucKbQk9DnIAAAAASUVORK5CYII=",
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACJJREFUGFdjrAz1+M/AwMDQvnoHI4iGATgHXQGKKpBqmAIArwYKGYAm2z0AAAAASUVORK5CYII="
+        ]),
+        yx_bords: load_imgs([
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACBJREFUGFdjZEADzCu//AcJMcLEYQJ/w3nAYozoAjCFAHVYCqMkjRcPAAAAAElFTkSuQmCC",
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACBJREFUGFdjZEAD9oFb/4OEGGHiMIGD673BYozoAjCFAFvgCkj80wMOAAAAAElFTkSuQmCC",
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAACBJREFUGFdjZEADc9Q3/AcJMcLEYQIpNwPAYozoAjCFAGlgCnbHgoTiAAAAAElFTkSuQmCC",
+            "iVBORw0KGgoAAAANSUhEUgAAAAYAAAADCAYAAACwAX77AAAAAXNSR0IArs4c6QAAABtJREFUGFdjZMAE/0FCjEjiYAGYGEgCRQCmEABymgMDc/HlHgAAAABJRU5ErkJggg=="
+        ]),
+        corners: load_colors("9EM2/w /1ci/w /5gA/w /8EH/w /+s7/w zdw5/w i8NK/w TK9Q/w AJaI/w ALzU/w"),
         is_opaque: true
     }
 };
@@ -253,6 +285,15 @@ function pix_is_with_offset(p_0, p_1, offset) {
     return p_0[0] + offset[0] == p_1[0] && p_0[1] + offset[1] == p_1[1] && p_0[2] + offset[2] == p_1[2];
 }
 
+/*function iso_pos_to_corner_block_pos(ix, ixy, ir) {
+    var f_a = load_tri(ix, ixy + ir - 1, 1 - ir);
+    var f_b = load_tri(ix, ixy, ir);
+    var f_c = load_tri(ix, ixy + ir, 1 - ir);
+    
+    var block_pos_a = f_a.length == 0 ? null : offset_block(f_a[0].block_pos, [[0, 0, 0], [0, 0, 0], [1, -1, 0], [0, -1, 0], [0, -1, 1], [0, -1, 0]][f_a[0].face_id]);
+    var block_pos_b = f_b.length == 0 ? null : offset_block(f_b[0].block_pos, [[0, 0, 1], [1, 0, 0], [1, -1, 0], [0, -1, 0], [0, -1, 1], [0, -1, 0]][f_b[0].face_id]);
+}*/
+
 function load_tile(tx, ty) {
     if (tiles.has(tx + "," + ty)) return tiles.get(tx + "," + ty);
 
@@ -270,7 +311,7 @@ function load_tile(tx, ty) {
     var min_ix = Math.floor(min_x / 8);
     var max_ix = Math.ceil(max_x / 8);
     
-    var min_iso, max_iso, ixy, ir, fp;
+    var min_iso, max_iso, ixy, ir, fp, f;
     
     for (var ix = min_ix; ix <= max_ix; ix++) {
         min_iso = pix_to_iso(ix * 8 + 7, min_y);
@@ -281,8 +322,9 @@ function load_tile(tx, ty) {
         
         while (ixy <= max_iso[1]) {
             fp = iso_to_face_pix(ix, ixy, ir);
+            f = load_tri(ix, ixy, ir);
             
-            t_2d.drawImage(load_tri(ix, ixy, ir)[0].face_img, fp[0] - min_x, fp[1] - min_y);
+            if (f.length != 0) t_2d.drawImage(f[0].face_img, fp[0] - min_x, fp[1] - min_y);
             
             if (ir == 1) { // xy-bord
                 var f_0 = load_tri(ix, ixy + 1, 0);
@@ -294,15 +336,15 @@ function load_tile(tx, ty) {
                     } else if (pix_is_with_offset(f_0[0].block_pos, f_1[0].block_pos, [0, 0, 1]) && f_0[0].block_id + "," + f_1[0].block_id in overrides.xy_top_bords) {
                         t_2d.drawImage(overrides.xy_top_bords[f_0[0].block_id + "," + f_1[0].block_id], fp[0] - min_x, fp[1] - min_y + 4);
                     } else if (false) { // side offset
-                    } else if (f_0[0].z_index > f_1[0].z_index || pix_is_with_offset(f_0[0].block_pos, f_1[0].block_pos, [0, 1, 1])) {
-                        t_2d.fillStyle = "#ff0000";
-                        t_2d.fillRect(fp[0] - min_x + 1, fp[1] - min_y + 4, 1, 1);
+                    } else if (f_0[0].z_index >= f_1[0].z_index || f_0[0].block_pos[1] == f_1[0].block_pos[1] - 1) {
                         t_2d.drawImage(blocks[f_0[0].block_id].xy_bords[0], fp[0] - min_x, fp[1] - min_y + 4);
                     } else {
                         t_2d.drawImage(blocks[f_0[0].block_id].xy_bords[3], fp[0] - min_x, fp[1] - min_y + 4);
                     }
                 } else if (f_0.length != 0) { // no f_1
+                    t_2d.drawImage(blocks[f_0[0].block_id].xy_bords[0], fp[0] - min_x, fp[1] - min_y + 4);
                 } else if (f_1.length != 0) { // no f_0
+                    t_2d.drawImage(blocks[f_1[0].block_id].xy_bords[3], fp[0] - min_x, fp[1] - min_y + 4);
                 }
             } else { // yx-bord
                 var f_0 = load_tri(ix, ixy, 0);
@@ -314,21 +356,79 @@ function load_tile(tx, ty) {
                     } else if (pix_is_with_offset(f_0[0].block_pos, f_1[0].block_pos, [-1, 0, 0]) && f_0[0].block_id + "," + f_1[0].block_id in overrides.yx_top_bords) {
                         t_2d.drawImage(overrides.yx_top_bords[f_0[0].block_id + "," + f_1[0].block_id], fp[0] - min_x + 1, fp[1] - min_y + 4);
                     } else if (false) { // side offset
-                    } else if (f_1[0].z_index > f_0[0].z_index || pix_is_with_offset(f_0[0].block_pos, f_1[0].block_pos, [-1, -1, 0])) {
+                    } else if (f_1[0].z_index >= f_0[0].z_index || pix_is_with_offset(f_0[0].block_pos, f_1[0].block_pos, [-1, -1, 0])) {
                         t_2d.drawImage(blocks[f_1[0].block_id].yx_bords[0], fp[0] - min_x + 1, fp[1] - min_y + 4);
                     } else {
                         t_2d.drawImage(blocks[f_0[0].block_id].yx_bords[3], fp[0] - min_x + 1, fp[1] - min_y + 4);
                     }
                 } else if (f_0.length != 0) { // no f_1
+                    t_2d.drawImage(blocks[f_0[0].block_id].yx_bords[3], fp[0] - min_x + 1, fp[1] - min_y + 4);
                 } else if (f_1.length != 0) { // no f_0
+                    t_2d.drawImage(blocks[f_1[0].block_id].yx_bords[0], fp[0] - min_x + 1, fp[1] - min_y + 4);
                 }
             }
+            
+            var f_a = load_tri(ix, ixy + ir - 1, 1 - ir);
+            var f_b = load_tri(ix, ixy, ir);
+            var f_c = load_tri(ix, ixy + ir, 1 - ir);
+            
+            t_2d.fillStyle = "rgba(0, 0, 0, 0)";
+            
+            /*if (f_a.length != 0 && f_b.length != 0 && f_c.length != 0) {
+                if (pix_is(f_a[0].block_pos, f_b[0].block_pos) && pix_is(f_b[0].block_pos, f_c[0].block_pos)) {
+                    t_2d.fillStyle = blocks[f_a[0].block_id].corners[ir + 4];
+                } else {
+                    var is_top_corner = ir == 0 ? (
+                        pix_is_with_offset(f_a[0].block_pos, f_b[0].block_pos, [0, 0, -1]) && pix_is_with_offset(f_b[0].block_pos, f_c[0].block_pos, [-1, 0, 0])
+                    ) : (
+                        pix_is_with_offset(f_a[0].block_pos, f_b[0].block_pos, [-1, 0, 0]) && pix_is_with_offset(f_b[0].block_pos, f_c[0].block_pos, [0, 0, -1])
+                    );
+
+                    if (is_top_corner && (f_a[0].block_id + "," + f_b[0].block_id + "," + f_c[0].block_id in overrides.top_corners)) {
+                        t_2d.fillStyle = overrides.top_corners[f_a[0].block_id + "," + f_b[0].block_id + "," + f_c[0].block_id];
+                    } else if (Math.floor(f_c[0].face_id / 2) == 0 && (f_c[0].z_index >= f_a[0].z_index || f_c[0].block_pos[1] == f_a[0].block_pos[1] - 1) && (f_c[0].z_index >= f_b[0].z_index || f_c[0].block_pos[1] == f_b[0].block_pos[1] - 1)) {
+                        t_2d.fillStyle = blocks[f_a[0].block_id].corners[ir];
+                    } else if (Math.floor(f_b[0].face_id / 2) == 0 && (f_b[0].z_index >= f_a[0].z_index || f_b[0].block_pos[1] == f_a[0].block_pos[1] - 1)) {
+                        t_2d.fillStyle = blocks[f_a[0].block_id].corners[ir + 2];
+                    } else if (f_b[0].face_id + ir == 4/* && f_b[0].z_index >= f_a[0].z_index* /) {
+                        t_2d.fillStyle = blocks[f_b[0].block_id].corners[1 - ir + 6]; // "#ff0000";
+                    } else {
+                        t_2d.fillStyle = blocks[f_a[0].block_id].corners[ir + 8];
+                    }
+
+                    t_2d.fillRect(fp[0] - min_x + 7 - ir * 8, fp[1] - min_y + 3, 1, 1);
+                }
+            }*/
+            
+            var z_a = f_a.length != 0 ? f_a[0].z_index : -Infinity;
+            var z_b = f_b.length != 0 ? f_b[0].z_index : -Infinity;
+            var z_c = f_c.length != 0 ? f_c[0].z_index : -Infinity;
+            
+            if (f_c.length != 0 && (z_c % 3 + 3) % 3 == 2 && z_c >= z_b - 1 && z_c >= z_a - 2) {
+                var override_key = load_block(f_c[0].block_pos[0] + 1, f_c[0].block_pos[1], f_c[0].block_pos[2] + 1) + "," + load_block(f_c[0].block_pos[0] + 1 - ir, f_c[0].block_pos[1], f_c[0].block_pos[2] + ir) + "," + f_c[0].block_id;
+                
+                if (override_key in overrides.top_corners) { // doesn't work (sadge)
+                    t_2d.fillStyle = overrides.top_corners[override_key][ir];
+                } else {
+                    t_2d.fillStyle = blocks[f_c[0].block_id].corners[ir];
+                }
+            } else if (f_b.length != 0 && (z_b % 3 + 3) % 3 == 2 && z_b >= z_c && z_b >= z_a - 2) {
+                t_2d.fillStyle = blocks[f_b[0].block_id].corners[1 - ir + 2];
+            } else if (f_b.length != 0 && (z_b % 3 + 3) % 3 == 0 && z_b >= z_c + 1 && z_b >= z_a - 1) {
+                t_2d.fillStyle = blocks[f_b[0].block_id].corners[1 - ir + 6];
+            } else if (f_a.length != 0 && (z_a % 3 + 3) % 3 == 0) {
+                t_2d.fillStyle = blocks[f_a[0].block_id].corners[ir + 8];
+            } else if (f_a.length != 0) {
+                t_2d.fillStyle = blocks[f_b[0].block_id].corners[ir + 4];
+            }
+            
+            t_2d.fillRect(fp[0] - min_x + 7 - ir * 8, fp[1] - min_y + 3, 1, 1);
             
             ixy += ir;
             ir = 1 - ir;
         }
     }
-
+    
     tiles.set(tx + "," + ty, tile);
 
     return tile;
@@ -336,11 +436,6 @@ function load_tile(tx, ty) {
 
 function draw(tick_time_ms) {
     c_2d.clearRect(0, 0, disp_size[0], disp_size[1]);
-    
-    /*function draw_pix(x, y, c_2d, px, py, pw = 1) {
-        c_2d.fillStyle = "#" + hsl_to_rgb(0, 0, (x ** 2 + y ** 2) % 100).map(x => Math.floor(x).toString(16).padStart(2, "0")).join("");
-        c_2d.fillRect(px, py, pw, pw);
-    }*/
     
     function pix_to_pxs(x, y) {
         return [
